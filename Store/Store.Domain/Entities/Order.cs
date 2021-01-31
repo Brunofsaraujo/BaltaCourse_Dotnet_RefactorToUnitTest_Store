@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flunt.Validations;
 using Store.Domain.Enums;
 
 namespace Store.Domain.Entities
@@ -18,6 +19,8 @@ namespace Store.Domain.Entities
             DeliveryFee = deliveryFee;
             Discount = discount;
             Items = new List<OrderItem>();
+
+            Validate();
         }
 
         public Customer Customer { get; private set; }
@@ -28,10 +31,18 @@ namespace Store.Domain.Entities
         public Discount Discount { get; private set; }
         public EOrderStatus Status { get; private set; }
 
+        public void Validate()
+        {
+            AddNotifications(new Contract()
+                .Requires()
+                .IsNotNull(Customer, "Customer", "Cliente inválido"));
+        }
+
         public void AddItem(Product product, int quantity)
         {
             var item = new OrderItem(product, quantity);
-            Items.Add(item);
+            if (item.Valid)
+                Items.Add(item);
         }
 
         public decimal Total()
